@@ -1,3 +1,3 @@
-# Git ignores the files which are in this files
-Myenv
+# environment
 .env
+.env.*
