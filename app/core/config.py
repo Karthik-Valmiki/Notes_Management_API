@@ -2,7 +2,7 @@ from dotenv import load_dotenv
 from pathlib import Path
 import os
 
-load_dotenv(dotenv_path=Path(__file__).resolve().parent.parent.parent / ".env")
+load_dotenv()
 
 DATABASE_URL = os.getenv("DATABASE_URL")
 SECRET_KEY = os.getenv("SECRET_KEY")
