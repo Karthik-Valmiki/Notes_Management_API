@@ -9,31 +9,98 @@
 
 ---
 
-## Setup
+# Setup
 
-### 1. Install Docker
+## 1. Prerequisites
 
-Download and install Docker Desktop from [https://www.docker.com/products/docker-desktop](https://www.docker.com/products/docker-desktop). With Docker no other dependencies needed. 
+Before running the project, ensure the following tools are installed on your system.
+
+### Python
+
+Download Python from the official website:
+
+https://www.python.org/downloads/
+
+Verify installation:
+
+```bash
+python --version
+```
+
+or
+
+```bash
+python3 --version
+```
+
+Expected output:
+
+```
+Python 3.x.x
+```
+
+---
+
+### Git
+
+Download Git from:
+
+https://git-scm.com/downloads
+
+Verify installation:
+
+```bash
+git --version
+```
+
+Expected output:
+
+```
+git version 2.x.x
+```
+
+---
+
+### Docker
+
+Download Docker Desktop from:
+
+https://www.docker.com/products/docker-desktop
 
 After installation, open the Docker Desktop application.
-  Important: Docker won't work until the app is open and you see the little whale icon in your taskbar/menu bar turn solid (it shouldn't be "animating" or "starting").
 
-Make sure Docker is running on left bottom, then you can proceed with the next steps
+Important: Docker will not work until the application is running. Wait until the Docker whale icon in your taskbar/menu bar becomes stable.
 
-### 2. Clone the repository
+Verify installation:
+
+```bash
+docker --version
+```
+
+---
+
+# 2. Clone the Repository
 
 ```bash
 git clone https://github.com/Karthik-Valmiki/Notes_Management_API.git
 cd Notes_Management_API
 ```
 
-### 3. Configure environment variables
+---
+
+# 3. Configure Environment Variables (Mandatory)
+
+Before running the application, you **must create and configure the `.env` file**.
+
+Copy the example file:
 
 ```bash
 cp .env.example .env
 ```
 
-Open `.env` and fill in your values:
+Now open `.env` and update the values.
+
+Example configuration:
 
 ```env
 DATABASE_URL=postgresql://postgres:yourpassword@db:5432/notes_db
@@ -43,29 +110,51 @@ ACCESS_TOKEN_EXPIRE_MINUTES=30
 ADMIN_SECRET=your_admin_bootstrap_secret
 ```
 
-#### About `SECRET_KEY`
+Important notes:
 
-`SECRET_KEY` is the server-side key used to **sign and verify JWT tokens**. Every token issued by the API is signed with this key — if it changes, all existing tokens become invalid and every logged-in user gets logged out.
+- `SECRET_KEY` must be a **long random string**
+- `ADMIN_SECRET` can be **any value you choose**
+- The `.env` file **must exist before running Docker**
 
-- Must be a long, random hex string — never a simple word or phrase
-- Must stay consistent across restarts — do not auto-generate it on startup
+If this step is skipped, the API will fail to start.
 
-Generate one by running this in your terminal:
+---
+
+# 4. Generate a Secure SECRET_KEY
+
+Run the following command in your terminal:
 
 ```bash
 python -c "import secrets; print(secrets.token_hex(32))"
 ```
 
-Paste the output directly into your `.env` as the `SECRET_KEY` value.
+Example output:
+
+```
+4d4d4b67a7f6a93c7a4d98b51f1d7e6d0d78e4d8d6d2a5c33b2c71f8cdd6b62f
+```
+
+Paste this value into your `.env` file:
+
+```env
+SECRET_KEY=PASTE_GENERATED_KEY_HERE
+```
 
 ---
 
-## Running the Application
+# Running the Application
+
+After configuring the `.env` file, run the following command inside the project folder:
 
 ```bash
 docker compose up --build
 ```
-Run the above command in Vs-Code Terminal
+
+Run the above command in the VS Code terminal.
+
+Docker will start the PostgreSQL database first, and then the FastAPI application.
+
+---
 
 | | URL |
 |-|-----|
@@ -76,36 +165,49 @@ Run the above command in Vs-Code Terminal
 
 ---
 
-## Authentication
+# Authentication
 
-### Register
+## Register
 
-```bash
-Navigate to `http://localhost:8000/docs`, open the `POST /users/register` endpoint, Go with username, email, password and click **Execute**.
-  -d '{"username": "karthik","email":"karthik@gmail.com", "password": "secret123"}'
+Navigate to `http://localhost:8000/docs`, open the `POST /users/register` endpoint, fill in `username`, `email`, and `password`, then click **Execute**.
+
+Example request body:
+
+```json
+{
+  "username": "karthik",
+  "email": "karthik@gmail.com",
+  "password": "secret123"
+}
 ```
 
-**Response:**
+**Response**
 
 ```json
 {
   "id": 1,
   "username": "karthik",
-  "email":"karthik@gmail.com",
+  "email": "karthik@gmail.com",
   "role": "user"
 }
 ```
 
 ---
 
-### Login
+## Login
 
-```bash
-Navigate to `http://localhost:8000/docs`, open the `POST /users/login` endpoint, Go with email, password and click **Execute**.
-  -d '{"username": "karthik", "password": "secret123"}'
+Navigate to `http://localhost:8000/docs`, open the `POST /users/login` endpoint, fill in `email` and `password`, then click **Execute**.
+
+Example request body:
+
+```json
+{
+  "username": "karthik",
+  "password": "secret123"
+}
 ```
 
-**Response:**
+**Response**
 
 ```json
 {
@@ -114,18 +216,33 @@ Navigate to `http://localhost:8000/docs`, open the `POST /users/login` endpoint,
 }
 ```
 
-> Use this token as `Authorization: Bearer <your_token>` in all requests below.
-> open `http://localhost:8000/docs`, click the **Authorize** button on the top right, and paste your token there — Swagger handles the header automatically for every request.
----
+Use this token in requests as:
 
-## Creating Notes
-
-```bash
-Navigate to `http://localhost:8000/docs`, open the `POST /notes` endpoint, enter your title and content in the request body and click **Execute**.
-  -d '{"title": "Meeting Notes", "content": "Discuss project milestones."}'
+```
+Authorization: Bearer <your_token>
 ```
 
-**Response:**
+In Swagger UI:
+
+Click the **Authorize** button on the top-right and paste the token.
+You can ignore the cliend_id, Don't fill the part
+
+---
+
+# Creating Notes
+
+Navigate to `http://localhost:8000/docs`, open the `POST /notes` endpoint, enter the title and content, then click **Execute**.
+
+Example request body:
+
+```json
+{
+  "title": "Meeting Notes",
+  "content": "Discuss project milestones."
+}
+```
+
+**Response**
 
 ```json
 {
@@ -140,16 +257,14 @@ Navigate to `http://localhost:8000/docs`, open the `POST /notes` endpoint, enter
 
 ---
 
-## Managing Notes
+# Managing Notes
 
-### Get All Notes
+## Get All Notes
 
-```bash
 Navigate to `http://localhost:8000/docs`, open the `GET /notes` endpoint and click **Execute**.
-```
 
-**Response:**
-This response shows all notes created so far
+Example response:
+
 ```json
 [
   {
@@ -159,33 +274,23 @@ This response shows all notes created so far
     "owner_id": 1,
     "user_note_number": 1,
     "created_at": "2026-03-09T16:27:59.569733+05:30"
-  },
-  {
-    "id": 2,
-    "title": "Ideas",
-    "content": "New feature brainstorm.",
-    "owner_id": 1,
-    "user_note_number": 2,
-    "created_at": "2026-03-09T17:10:22.123456+05:30"
   }
 ]
 ```
-If your response failed to show the id number 2 then you haven't created yet..
+
 ---
 
-### Search & Pagination
+## Search & Pagination
 
-```bash
-Navigate to `http://localhost:8000/docs`, open the `GET /notes` endpoint, fill in `page`, `limit`, and `search` params and click **Execute**.
-```
+Navigate to `http://localhost:8000/docs`, open `GET /notes`, fill in parameters, and click **Execute**.
 
 | Param | Type | Description |
-|-------|------|-------------|
-| `page` | int | Page number *(default: 1)* |
-| `limit` | int | Results per page *(default: 10)* |
-| `search` | string | search by title keyword |
+|------|------|-------------|
+| page | int | Page number (default: 1) |
+| limit | int | Results per page (default: 10) |
+| search | string | Search by title keyword |
 
-**Response:**
+Example response:
 
 ```json
 [
@@ -202,13 +307,9 @@ Navigate to `http://localhost:8000/docs`, open the `GET /notes` endpoint, fill i
 
 ---
 
-### Get Note by ID
+## Get Note by ID
 
-```bash
-Navigate to `http://localhost:8000/docs`, open the `GET /notes/{id}` endpoint, enter the note ID and click **Execute**.
-```
-
-**Response:**
+Navigate to `GET /notes/{id}`, enter the note ID, and click **Execute**.
 
 ```json
 {
@@ -223,73 +324,90 @@ Navigate to `http://localhost:8000/docs`, open the `GET /notes/{id}` endpoint, e
 
 ---
 
-### Update a Note
+## Update a Note
 
-```bash
-Navigate to `http://localhost:8000/docs`, open the `PUT /notes/{id}` endpoint, enter the note ID and updated body and click **Execute**.
-  -d '{"title": "Updated Title", "content": "Updated content."}'
-```
+Navigate to `PUT /notes/{id}`, enter the ID and updated data.
 
-**Response:**
+Example request:
 
 ```json
 {
-  "id": 1,
   "title": "Updated Title",
-  "content": "Updated content.",
-  "owner_id": 1,
-  "user_note_number": 1,
-  "created_at": "2026-03-09T16:27:59.569733+05:30"
+  "content": "Updated content."
 }
 ```
 
 ---
 
-## Deleting Notes
+# Deleting Notes
 
-```bash
-Navigate to `http://localhost:8000/docs`, open the `DELETE /notes/{id}` endpoint, enter the note ID and click **Execute**.
-```
+Navigate to `DELETE /notes/{id}` and click **Execute**.
 
-**Response:**
+Response:
 
 ```json
 {
   "success": true,
-  "message": "Note deleted successfully"
+  "message": "Note deleted successfully",
+  "data": null
 }
 ```
 
-> Users can only delete their **own** notes. Attempting to delete another user's note returns `403 Forbidden`.
+Users can only delete **their own notes**.
+
+Attempting to delete another user's note returns **403 Forbidden**.
 
 ---
 
-## Admin Role
- An admin is a user first — everything a regular user can do, an admin can do. The difference is admins can see and delete notes belonging to any user.
+# Admin Role
 
-### Capabilities
+An admin is a user first — everything a regular user can do, an admin can do.
+
+Admins additionally can:
 
 | Action | User | Admin |
-|--------|------|-------|
+|------|------|------|
 | CRUD on own notes | ✅ | ✅ |
 | View all users' notes | ❌ | ✅ |
 | Delete any note | ❌ | ✅ |
 | Manage users | ❌ | ✅ |
 
-### Setting Up an Admin Account
+---
 
-Admin registration is intentionally protected — it cannot be done through the normal register flow.
+# Setting Up an Admin Account
 
-**Step 1** — Set `ADMIN_SECRET` in your `.env`
+Admin registration is protected.
 
-**Step 2** — Register admin with the secret in the header:
+### Step 1 — Set ADMIN_SECRET in `.env`
 
-```bash
-Navigate to `http://localhost:8000/docs`, open the `POST /users/register-admin` endpoint, enter `your_admin_bootstrap_secret` in the `x-admin-secret` header field, fill in username and password in the request body and click **Execute**.
-  -d '{"username": "admin", "password": "adminpass123"}'
+```
+ADMIN_SECRET=your_admin_bootstrap_secret (I am going with pass@admin)
 ```
 
-**Response:**
+---
+
+### Step 2 — Register Admin
+
+Navigate to `POST /users/register-admin`
+
+Add header:
+
+```
+x-admin-secret: your_admin_bootstrap_secret (pass@admin)
+```
+
+Example body:
+
+```json
+{
+  "username": "admin",
+  "email": "admin@gmail.com",
+  "password": "adminpass123",
+  "admin_secret": "pass@admin"
+}
+```
+
+Response:
 
 ```json
 {
@@ -299,75 +417,62 @@ Navigate to `http://localhost:8000/docs`, open the `POST /users/register-admin` 
 }
 ```
 
-**Step 3** — Login normally. The token returned carries admin privileges automatically.
+---
 
-```bash
-Navigate to `http://localhost:8000/docs`, open the `POST /users/login` endpoint, enter admin credentials and click **Execute**. The token returned carries admin privileges automatically.
-  -d '{"username": "admin", "password": "adminpass123"}'
+### Step 3 — Login
+
+Use `POST /users/login` with admin credentials.
+
+The returned JWT token automatically contains **admin privileges**.
+
+---
+
+# Admin Endpoints
+
+## Get All Notes
+
+Navigate to `GET /admin/notes`.
+
+Returns notes across all users.
+
+---
+
+## Delete Any Note
+
+Navigate to:
+
+```
+DELETE /admin/notes/{note_id}
 ```
 
-**Response:**
+Response:
 
-```json
-{
-  "access_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
-  "token_type": "bearer"
-}
-```
-#### Admin — Get All Notes
-
-Navigate to `http://localhost:8000/docs`, open the `GET /admin/notes` endpoint and click **Execute**. This returns every note across all users in the system.
-
-**Response:**
-```json
-[
-  {
-    "id": 1,
-    "title": "Meeting Notes",
-    "content": "Discuss project milestones.",
-    "owner_id": 1,
-    "user_note_number": 1,
-    "created_at": "2026-03-09T16:27:59.569733+05:30"
-  },
-  {
-    "id": 2,
-    "title": "Ideas",
-    "content": "New feature brainstorm.",
-    "owner_id": 3,
-    "user_note_number": 1,
-    "created_at": "2026-03-09T17:10:22.123456+05:30"
-  }
-]
-```
-
-### Admin — Delete Any Note
-
-Navigate to `http://localhost:8000/docs`, open the `DELETE /admin/notes/{note_id}` endpoint, enter the note ID and click **Execute**.
-
-**Response:**
 ```json
 {
   "success": true,
-  "message": "Note deleted by admin"
+  "message": "Note deleted by admin",
+  "data": null
 }
 ```
 
-> Admin deletion happens through `/admin/notes/{note_id}` — a dedicated route separate from the regular user delete endpoint.
 ---
 
-## Edge Cases
+# Edge Cases
 
 | Scenario | Error | Fix |
-|----------|-------|-----|
-| Wrong credentials | `401 Invalid username or password` | Check username and password — both are case-sensitive |
-| Missing token | `401 Not authenticated` | Add `Authorization: Bearer <your_token>` header |
-| Expired token | `401 Token has expired` | Login again to get a fresh token |
-| Accessing another user's note | `403 Not authorized` | Users can only access their own notes |
-| Wrong admin secret | `403 Invalid admin secret` | Value in `x-admin-secret` must match `ADMIN_SECRET` in `.env` |
-| `DATABASE_URL` is None on startup | `ArgumentError: Expected string or URL` | Run `cp .env.example .env` and fill in your credentials |
+|------|------|------|
+| Wrong credentials | 401 Invalid username or password | Check credentials |
+| Missing token | 401 Not authenticated | Add Authorization header |
+| Expired token | 401 Token has expired | Login again |
+| Accessing another user's note | 403 Not authorized | Users can only access their own notes |
+| Wrong admin secret | 403 Invalid admin secret | Must match `.env` value |
+| DATABASE_URL None | ArgumentError | Ensure `.env` exists |
 
 ---
 
-## Author
+# Author
 
-**Karthik Valmiki** — [GitHub](https://github.com/Karthik-Valmiki)
+**Karthik Valmiki**
+
+GitHub:  
+https://github.com/Karthik-Valmiki
