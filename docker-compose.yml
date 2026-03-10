@@ -27,11 +27,11 @@ services:
       db:
         condition: service_healthy
     environment:
-      DATABASE_URL: postgresql://postgres:first123@db:5432/notes_db
-      SECRET_KEY: 833f587b5564ac1f04d40bbb2d4822017a03d4096d8dbba5325eb97578b2adb1
-      ADMIN_SECRET: admin@pass
-      ALGORITHM: HS256
-      ACCESS_TOKEN_EXPIRE_MINUTES: 30
+      DATABASE_URL: ${DATABASE_URL}
+      SECRET_KEY: ${SECRET_KEY}
+      ADMIN_SECRET: ${ADMIN_SECRET}
+      ALGORITHM: ${ALGORITHM}
+      ACCESS_TOKEN_EXPIRE_MINUTES: ${ACCESS_TOKEN_EXPIRE_MINUTES}
 
 volumes:
   postgres_data:
