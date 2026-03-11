@@ -243,6 +243,7 @@ Example request body:
 ```
 
 **Response**
+The timings are completely based on the UTC-(Need not to worry about that)
 
 ```json
 {
